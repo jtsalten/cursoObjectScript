@@ -1,2 +1,2 @@
-# cursoObjectScript
-Curso virtual InterSystems ObjectScript
+# Curso Virtual ObjectScript
+Repositorio de código de ejemplo para el curso.
