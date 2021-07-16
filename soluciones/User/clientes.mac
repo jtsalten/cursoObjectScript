@@ -1,0 +1,117 @@
+ROUTINE User.clientes
+Inicializa
+    // Elimina los globals ^clientes, ^clientesIDX y ^codigos (si existen)
+    kill ^clientes, ^clientesIDX, ^codigos
+
+    // Carga global ^codigos con las descripciones de tipos y estados (globals "maestros")
+    set ^codigos("tipo") = "Distribuidor,Mayorista,Minorista,Usuario"
+    set ^codigos("estado") = "Activo,Cerrado,Incobrable,Lista Negra"
+    
+    quit
+
+/// Genera tantos clientes como se indiquen
+Genera(nclientes) public
+    // Si no se indica ninguno, genera 100 por defecto... Pista: aquí usaremos el $get
+    set nclientes = $get(nclientes,100)
+
+    // Define una lista de nombres y apellidos... Pista: Dale uso a las funciones de listas $ListBuild, $ListLength,...
+    set nombres = $ListBuild("Angel","Luisa","Enrique","Maria","Santiago","Lucia","Jose","Eva","Carlos","Paula","Antonio","Ana","Eduardo","Inma","Roberto","Susana","Evaristo","Sofia","Marcos","Valentina","Pedro","Cristina","Miguel","Rosa","Luis","Carmen","Eduardo")
+    set cntNombres = $ListLength(nombres)
+    set apellidos = $ListBuild("Garcia","Martinez","Salvador","Alonso","Olmos","Tendero","Valera","Jimenez","Lopez","Sahuquillo","Calvera","Tremols","Anglada","Perez","Romero","Contreras","Fuerte","Madrid","Gallego","Fernandez","Roldan","Monasor","Aguado","Pinos","Verdu")
+    set cntApellidos = $ListLength(apellidos)
+
+    // Define una lista de sedes
+    set sedes = $ListBuild("ESP","ITA","FRA","POR","ALE")
+    set cntSedes = $ListLength(sedes)
+
+    // Define una lista de empresas para emails
+    set empresas = $ListBuild("intersystems","ibm","carrefour","mercadona","lidl","sampol","arisnova","inalsa","gob","gmail","yahoo","hotmail","outlook")
+    set cntEmpresas = $ListLength(empresas)
+
+    // Rango de fechas en formato interno. Desde 5 años atrás hasta hoy... Pista: Te acuerdas de $horolog?
+    set desde = +$h - (365*5)
+    
+    // Loop para generar aleatoriamente "nclientes" clientes
+    for i = 1:1:nclientes
+    {
+        // Genera datos aleatorios: tfn, empresa, ape1, ape2, nombre, sede, email, fecha, balance... 
+        // Pista: $List o $ListGet para sacar un elemento... $random(n) genera un numero aleatorio de 0 a n-1
+        set tfn = "6"_(($r(10)*1e7) + ($r(9999)*1e3) + $r(9999))
+        set empresa = $List(empresas,$random(cntEmpresas)+1)
+        set ape1 = $List(apellidos,$random(cntApellidos)+1)
+        set ape2 = $List(apellidos,$random(cntApellidos)+1)
+        set nombre = $List(nombres,$random(cntNombres)+1)
+        set apeNom = ape1_" "_ape2_", "_nombre
+        set sede = $List(sedes,$random(cntSedes)+1)
+        set email = $extract(nombre,1)_ape1_"@"_empresa_".com"
+        set fecha = desde + $random(365*5)
+        set balance = $random(10000)
+
+        // Incluye el número de clientes generados en el nodo raiz de ^clientes
+        do $Increment(^clientes)
+
+        // Registra los datos del cliente ... Pista: Recuerda cada dato en su posición, separado por "^" del siguiente
+        set clienteID = $random(1000000)+1
+        set ^clientes(sede,clienteID) = $random(4)_$random(4)_"^"_apeNom_"^"_tfn_"^"_email_"^"_fecha_"^"_balance
+        
+        // Construye índice para busquedas en la sede - por Apellidos y Nombre
+        // Pista: qué estructura tendría ese global de índice para, sabiendo la sede y primer apellido, 
+        // poder saber rápidamente todos los IDs de los clientes que tengan ese apellido...
+        set ^clientesIDX(sede,"idxApe",ape1,clienteID) = "" 
+    }
+
+    // Devuelve el valor del nodo raiz
+    return "Generados: "_$get(^clientes)
+
+/// Descripción del tipo de cliente - num entre 1 y 4 (ambos inclusive)
+tipoCliente(num) public
+{   
+    set num = $get(num,"")
+    // Sale si el código no está en el rango de 1 a 4
+    return:(num<1)||(num>4) "-"
+    // Devuelve la descripción del tipo de cliente según el código
+    return $piece($get(^codigos("tipo"),"-,-,-,-"),",",num)
+}
+
+/// Descripción del estado de la cuenta de cliente
+statusCliente(num) public
+{
+    set num = $get(num,"")    
+    // Sale si el código no está en el rando de 1 a 4
+    return:(num<1)||(num>4) "-"
+    // Devuelve la descripción del tipo de cliente según el código
+    return $piece($get(^codigos("estado"),"-,-,-,-"),",",num)
+}
+
+/// Para una sede determinada, busca e imprime por pantalla los datos del cliente o clientes cuyo primer apellido sea igual al valor del parámetro ape
+buscaPorApe(sede,ape) public
+{
+    // Sale si no se indica la sede
+    quit:$get(sede)=""
+
+    // Si no se indica apellido, asume " "
+    set ape = $get(ape," ")
+
+    // Busca el/los ID(s) del(os) empleado(s) con apellido1 = ape... Pista: Qué función utilizas para recorrer un global?...
+    set clienteID = $order(^clientesIDX(sede,"idxApe",ape,""))
+    while clienteID '= ""
+    {
+        // Escribe los datos del cliente
+        write !,"Cliente ["_clienteID_"]: "_$get(^clientes(sede,clienteID),"n/d")
+        // Buscamos el siguiente clienteID
+        set clienteID = $order(^clientesIDX(sede,"idxApe",ape,clienteID))
+    }
+    return
+}
+
+/// Para una sede determinada, busca e imprime por pantalla los datos del cliente cuyo ID sea igual al valor del parametro ID
+buscaPorID(sede,ID) public
+{
+    // Sale si no se indica la sede o el ID
+    quit:($get(sede)="")||($get(ID)="")
+
+    // Escribe los datos del cliente
+    write !, "Cliente ["_ID_"]: "_$get(^clientes(sede,ID),"n/d")
+    return
+}
+

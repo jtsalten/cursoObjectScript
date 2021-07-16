@@ -1,0 +1,13 @@
+ROUTINE User.ejemploQuery
+Inicio
+  new x,i
+  set x = "^miGlobal"
+  for
+  {
+      write !, $Increment(i)
+      set x = $query(@x)
+      quit:x=""
+      write "  Resultado de $query: "_x
+  }
+
+  return 

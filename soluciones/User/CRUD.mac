@@ -1,0 +1,87 @@
+ROUTINE User.CRUD
+Inicio
+    // Si se llama a la rutina directamente, no hacemos nada y salimos directamente.
+    quit
+
+/// Crea un nuevo registro con los datos del empleado y devuelve su Identificador
+Crea(ape,nombre,fecha,tel,email) Public
+{
+    // Nuevo ID
+    set empID = $Increment(^empleados)
+
+    // Obtiene lock exclusivo para el nuevo registro. Si no puede en 5 segundos, sale con el error: "0:Error al intentar obtener lock exclusivo"
+    lock ^empleados(empID):5 
+    if '$TEST return "0:Error al intentar obtener lock exclusivo"
+
+    // Almacena los datos... Pista: ojo... que puede que falten datos... en ese caso utiliza "-"... o "n/d"... aunque tambien lo podeis dejar vacio ""
+    set ^empleados(empID) = $listbuild($get(ape,"-"),$get(nombre,"-"),$get(fecha,+$h),$get(tel,"-"),$get(email,"-"))
+
+    // Desbloquea el registro
+    lock -^empleados(empID)
+ 
+    // Devuelve el ID del nuevo empleado
+    return empID
+}
+
+/// Lee y devuelve, en formato LISTBUILD, los datos del empleado con el ID indicado
+Lee(empID) Public
+{
+    // Retorna error si no existe el empleado. 0:Identificador inválido o empleado no existe
+    return:($get(empID,"")="")||('$data(^empleados(empID))) "0:Identificador inválido o empleado no existe"
+
+    // Obtiene un lock compartido para el registro del empleado. Si no puede en 5 segundos, sale con el error: "0:Error al intentar obtener lock"
+    lock +^empleados(empID)#"S":5
+    if '$TEST return "0:Error al intentar obtener lock"
+
+    // Obtiene y retorna los datos del registro - la lista tal cual
+    set resultado = $get(^empleados(empID),"")
+    lock -^empleados(empID)#"S"
+    return resultado
+}
+
+/// Modifica los datos del empleado con el ID indicado
+Modifica(empID,ape,nombre,fecha,tel,email) Public
+{
+    // Retorna error si no existe el empleado. "0:Identificador inválido o empleado no existe"
+    return:($get(empID,"")="")||('$data(^empleados(empID))) "0:Identificador inválido o empleado no existe"
+
+    // Obtiene un lock compartido para el registro del empleado. Si no puede en 5 segundos, sale con el error: "0:Error al intentar obtener lock"
+    lock +^empleados(empID)#"S":5
+    if '$TEST return "0:Error al intentar obtener lock"
+
+    // Obtiene los datos actuales
+    set datos = $get(^empleados(empID))
+    set cApe = $List(datos,1)
+    set cNom = $List(datos,2)
+    set cFecha = $List(datos,3)
+    set cTel = $List(datos,4)
+    set cEmail = $List(datos,5)
+
+    // Sobreescribe el registro con los datos nuevos, manteniendo los antiguos que no se modifiquen
+    set ^empleados(empID) = $listbuild($get(ape,cApe),$get(nombre,cNom),$get(fecha,cFecha),$get(tel,cTel),$get(email,cEmail))
+
+    // Desbloquea el registro
+    lock -^empleados(empID)#"S"
+ 
+    // Devuelve 1 para indicar que se ha modificado con éxito
+    return 1
+}
+
+Borra(empID) Public
+{
+    // Retorna error si no existe el empleado. 0:Identificador inválido o empleado no existe
+    return:($get(empID,"")="")||('$data(^empleados(empID))) "0:Identificador inválido o empleado no existe"
+
+    // Obtiene un lock exclusivo sobre el registro del empleado. Si no puede en 5 segundos, sale con el error: "0:Error al intentar obtener lock exclusivo"
+    lock ^empleados(empID):5
+    if '$TEST return "0:Error al intentar obtener lock exclusivo"
+
+    // Elimina el registro
+    kill ^empleados(empID)
+
+    // Desbloquea el registro
+    lock -^empleados(empID)
+
+    // Devuelve 1 para indicar que se ha borrado con éxito
+    return 1
+}

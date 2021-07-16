@@ -1,0 +1,12 @@
+ROUTINE User.recorreGlobal
+
+Inicio
+  set idx = $order(^miGlobal("Ciudades",""),1,valor)
+
+  while idx '= ""
+  {
+      write !,"Nodo: "_idx_"   Valor: "_valor
+      set idx = $order(^miGlobal("Ciudades",idx),1,valor)
+  }
+
+  quit

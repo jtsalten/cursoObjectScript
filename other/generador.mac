@@ -1,0 +1,70 @@
+ROUTINE User.generador
+Start
+    //Pide genero (H/hombre, M/mujer o miX/xed) y numero num de nom-ape a generar
+    //Si num es 0 --> salir / si genero no es H o M, se considera X
+    do 
+    {
+        read !,"Indique el género (H/M/X): ",gen
+        read !,"Cuántos creo?",num
+
+        set gen = $zconvert(gen,"U")
+        if (gen '= "H") && (gen '= "M")
+        {
+            set gen = "X"
+        }
+
+        if +num=0
+        {
+            return
+        }
+    }
+    while (num<0)
+
+    //loop - para num veces
+    for i = 1:1:num
+    {
+        //Genera Nombre y Apellidos
+        set nombreApellidos = $$NomApe(gen)
+        //Incluir en lista
+        set $list(listaFinal,i) = nombreApellidos
+    }
+   
+    //Muestra resultados en pantalla
+    set ptr = 0
+    while $listnext(listaFinal,ptr,resultado)
+    {
+        write !,resultado
+    }
+
+    quit
+NomApe(pGen)
+    //Genera un nombre y lo asigna a la variable nombre
+    set nombre = $$Nombre(pGen)
+
+    //Genera los apellidos y lo asigna a la variable apellidos
+    set apellidos = $$Apellidos()
+
+    //Concatena nom y ape y devuelve el resultado
+    return nombre_" "_apellidos
+Nombre(pGen)
+    // Define una base de nombres
+    set sListaNombreH = $LB("José","Enrique","Emilio","Francisco","Luis","Eladio","Abel","Eduardo","Alberto","Pedro","Gónzalo","Eladio","Marcos","Daniel","David","Eusebio","Roberto","Tomás","Antonio","Miguel","Ángel","Miguel Angel","José Tomás","José Luis","José María","Feliciano")
+    set sListaNombreM = $LB("María","Ana","Isabel","Eva","Juana","Cristina","Lucia","Leticia","Sofia","Natalia","Gloria","Rosa","Enriqueta","Carmen","Paula","Manuela","Valentina")
+ 
+    // Si gen es X, escoge aleatoriamente H o M
+    if pGen = "X" 
+    {
+        set pGen = $case($random(999)#2,0:"H",:"M")
+    }
+    set sLista = $case(pGen,"H":sListaNombreH,:sListaNombreM)
+
+    // Escoge un nombre aleatoriamente y retorna su valor
+    set sNombre = $list(sLista,$random(($listlength(sLista)))+1)
+    return sNombre
+Apellidos()
+    // Define una lista de apellidos posibles
+    set sListaAp = $LB("López","Martínez","Salvador","Garcia","Fuentes","González","Pérez","Rubio","Alonso","Calvera","Calvet","Pons","Paños","Tendero","Valera","Gutierrez")
+    
+    // Escoge 2 apellidos aleatoriamente, los concatena y retorna el resultado
+    set sLongLista = $listlength(sListaAp)
+    return $list(sListaAp,$random(sLongLista)+1)_" "_$list(sListaAp,$random(sLongLista)+1)

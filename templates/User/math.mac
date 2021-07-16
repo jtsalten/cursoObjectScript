@@ -1,0 +1,22 @@
+ROUTINE User.math
+/// Eleva un número entre 1 y 10 a un exponente aleatorio entre 0 y 6
+Start
+    // Establece el número base (num) y el exponente (exp)
+
+    // Si el exp es 0 llama a NoMul(), si es 2 a Square(), si es 3 a Cube() y en otro caso a Exponent()
+
+    // Escribe la operación realizada y el resultado y acaba la ejecución
+    return
+Square(n)
+    // calcula el cuadrado del número a la antigua usanza y lo deja en la variable resultado
+    return
+Cube(n)
+    // calcula el cubo del número a la antigua usanza y lo deja en la variable resultado
+    return
+Exponent(n,e)
+    // calcula la potencia de num elevado a exp usando un bucle y lo deja en la variable resultado
+    return
+NoMul(n)
+    // ponde la variable resultado a 1 (cualquier numero elevado a 0 es 1)
+    set resultado = 1
+    return 

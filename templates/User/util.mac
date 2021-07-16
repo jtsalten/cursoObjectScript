@@ -1,0 +1,43 @@
+ROUTINE User.util
+ //do ^User.util o do Primo^User.util para llamar a esta rutina
+Primo 
+    // Bucle for. Estará pidiendo números mientras no se salga
+    for
+    {
+        /*
+            Código
+        */
+        // Llama a la subrutina de lectura
+        do leer
+        
+        // Calculo si no error
+        write !,"Prueba - borrar"
+        if 1 quit
+
+        do calculo
+        
+        // Comprueba si ha encontrado un factor divisor distinto de 0
+        //if fact 
+        
+    }
+    quit ;;sale del programa
+///calcula si es divisible por 2 u otro número aparte de 1 y sí mismo
+calculo 
+    /* 
+        Código
+    */
+    //Inicializacion de tiempo de inicio y variables
+        
+    // Loop en busca de un divisor exacto 
+    
+    quit ;;vuelve al punto del que se le llamó
+
+/// Subrutina de lectura por terminal
+leer
+    // inicializa variable error
+ 
+    // solicita numero
+    
+    // Error si no se introduce un numero mayor 0 => 2 si blanco / 1 si < o = 0 / 0 en otro caso
+    
+    quit ;;vuelve al punto del que se le llamó

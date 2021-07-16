@@ -1,0 +1,7 @@
+ROUTINE testXecute
+Start   
+    xecute "set diahora = $zdt($h,3)"_
+        " write !,diahora"
+    xecute ("(h) set diahora = $zdt(h,3)",$h),
+        " write !,diahora"
+    

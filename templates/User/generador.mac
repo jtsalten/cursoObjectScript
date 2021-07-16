@@ -1,0 +1,83 @@
+ROUTINE User.generador
+Start
+    //Pide genero: gen (H/hombre, M/mujer o miX/xed); y numero: num; de nom-apes a generar
+    //Si num es 0 --> salir / si genero no es H o M, se considera X
+    new listaFinal
+    do
+    {
+        read !,"Indique el género(H/M/X): ", gen
+        read !,"Cuántos creo?", num
+
+        set gen = $zconvert(gen,"U")
+        if (gen '= "H") && (gen '= "M")
+        {
+            set gen = "X"
+        }
+
+        if +num = 0
+        {
+            return
+        }
+    }
+    while (num<0)
+
+    //loop - para num veces
+    for i = 1:1:num
+    {
+        //Genera Nombre y Apellidos
+        set nombreApellido = $$NomApe(gen)
+
+        //Incluir en lista
+        set $list(listaFinal,i)= nombreApellido
+    }
+
+    //Muestra resultados en pantalla
+    set ptr = 0
+
+    while $listnext(listaFinal,ptr,resultado)
+    {
+        write !, resultado
+    }
+
+    quit
+///Procedimiento - genera un nombre y apellidos
+NomApe(pGen)
+{
+    //Genera un nombre y lo asigna a la variable nombre
+    set nombre = $$Nombre(pGen)
+
+    //Genera los apellidos y lo asigna a la variable apellidos
+    set apellidos = $$Apellidos()
+
+    //Concatena nom y ape y devuelve el resultado
+    return nombre_" "_apellidos
+}
+///Procedimiento - genera nombre
+Nombre(pGen)
+{
+
+    // Define una base de nombres
+    set sListaNombreH = $ListBuild("José","Enrique","Emilio","Luis","Eladio","Alberto")
+    set sListaNombreM = $ListBuild("Maria","Ana","Isabel","Eva","Juana","Verónica")
+
+    // Si gen es X, escoge aleatoriamente H o M
+    if pGen = "X"
+    {
+        set pGen = $case($random(999)#2,0:"H",:"M")  
+    }
+
+    // Escoge un nombre aleatoriamente y retorna su valor
+    set sLista = $case(pGen,"H":sListaNombreH,:sListaNombreM)
+
+    set sNombre = $ListGet(sLista,$random($ListLength(sLista))+1)
+
+    return sNombre
+}
+///Funcion - genera apellidos
+Apellidos()
+    // Define una lista de apellidos posibles
+    set sListaAp = $LB("López","Martínez","Salvador","Guerrero","García")
+
+    // Escoge 2 apellidos aleatoriamente, los concatena y retorna el resultado
+    set sLongitudLista = $listlength(sListaAp)
+    return $list(sListaAp,$random(sLongitudLista)+1)_" "_$list(sListaAp,$random(sLongitudLista)+1)

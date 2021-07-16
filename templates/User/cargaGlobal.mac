@@ -1,0 +1,50 @@
+ROUTINE User.cargaGlobal
+Start
+    // Llama al procedure que generará el global... por defecto ^TESTGBL, 4 niveles y 2 nodos por nivel. 
+    return $$Load("^TESTGBL",4,2)
+    quit
+
+/// Genera un global de nombre pGlb, con pLevels niveles y un numero de pNodes por cada nivel
+/// Load(NombreGlobal, Niveles, Nodos)
+Load(pGlb,pLevels,pNodes) [public]
+{
+    // Valida que pGlb contenga un nombre de global válido (con ^)... si no, retorna un error de usuario con $system.Status.Error("5000","Global name incorrect")
+    return:(pGlb'?1"^"1.A.(1A,1N,1".")) $system.Status.Error("5000","Global name incorrect")
+
+    // Creamos un global base con datos de ejemplo de 1 nivel
+    // AVISO: Como estamos creando un global de 1 nivel, el número final de niveles será pLevels + 1
+    for i=1:1:pNodes
+    {
+        set tDummy(i)="dat00"_i
+    }
+
+    // Si no hay nodos o el global no existe, ejecuta un merge inicial con el global base tDummy
+    // ... aquí habrá que usar el $data y el merge
+    if $data(pGlb)<10
+    {
+        merge @pGlb = tDummy
+    }
+
+
+    // Recorremos todos los nodos y, para cada uno de cada nivel, añadimos el global base
+    for iLevel=1:1:pLevels
+    {
+        // Preparamos la referencia para empezar a iterar en el global con $QUERY
+        set glbRef = $piece(pGlb,"(",1)_"("""")"    // ^TESTGBL("") 
+        while (glbRef'="")
+        {
+            // Usa $query para buscar el siguiente nodo si lo hay
+            set glbRef = $query(@glbRef)
+            // Si ha encontrado un nodo posterior y estamos en el nivel correcto, hacemos un merge con el global base para insertar nodos adicionales
+            // Pista: $QLENGTH nos da el número de subscripts (nivel) de nuestra referencia actual
+            if (glbRef '= "") && ($qlength(glbRef) = iLevel)
+            {
+                merge @glbRef = tDummy
+            }
+        }
+    }
+
+    // Retorna 1 = OK, siempre
+    Return 1  
+}
+    

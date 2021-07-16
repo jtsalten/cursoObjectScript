@@ -1,0 +1,35 @@
+ROUTINE User.math
+/// Eleva un número entre 1 y 10 a un exponente aleatorio entre 0 y 6
+Start
+    // Inicializa el resultado y establece el número base (num) y el exponente (exp)
+    set resultado = 0
+    set num = $random(10) + 1
+    set exp = $random(7)
+
+    // Si el exp es 0 llama a NoMul(), si es 2 a Square(), si es 3 a Cube() y en otro caso a Exponent()
+    do $case(exp, 0:NoMul(),2:Square(num),3:Cube(num),:Exponent(num,exp))
+
+    // Escribe la operación realizada y el resultado y acaba la ejecución
+    write !,"La potencia de "_num_" elevado a "_exp_" es igual a = "_resultado
+    return
+
+Square(n)
+    // calcula el cuadrado del número a la antigua usanza y lo deja en la variable resultado
+    set resultado = n * n
+    return
+Cube(n)
+    // calcula el cubo del número a la antigua usanza y lo deja en la variable resultado
+    set resultado = n * n * n
+    return
+Exponent(n,e)
+    // calcula la potencia de num elevado a exp usando un bucle y lo deja en la variable resultado
+    set resultado = 1
+    for i=1:1:e
+    {
+        set resultado = resultado * n
+    }
+    return
+NoMul(n)
+    // ponde la variable resultado a 1 (cualquier numero elevado a 0 es 1)
+    set resultado = 1
+    return 
