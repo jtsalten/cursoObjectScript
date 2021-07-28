@@ -5,5 +5,25 @@
 		}
 	],
 	"settings": {
+		"intersystems.servers": {
+
+			"win-iris2021": {
+				"webServer": {
+					"scheme": "http",
+					"host": "127.0.0.1",
+					"port": 52780
+				},
+				"description": "Connection to local InterSystems IRIS™ installed with default settings."
+			},
+			"win-iris2020": {
+				"webServer": {
+					"scheme": "http",
+					"host": "127.0.0.1",
+					"port": 52777
+				},
+				"description": "Connection to local InterSystems Caché installed with default settings."
+			},
+			"/default": "win-iris2020"
+		}
 	}
 }

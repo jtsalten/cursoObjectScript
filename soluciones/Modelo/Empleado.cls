@@ -1,3 +1,5 @@
+Include Modelo.macros
+
 /// Clase Empleado
 Class Modelo.Empleado Extends (%Persistent, %Populate, %JSON.Adaptor, %XML.Adaptor)
 {
@@ -9,13 +11,13 @@ Property Nombre As %String(MAXLEN = 30);
 /// Domicilio
 Property Domicilio As Modelo.Direccion;
 
-Property Generao As %String(VALUELIST = ",M,F,O");
+Property Genero As %String(VALUELIST = ",M,F,O");
 
 Property FechaNacimiento As %Date;
 
 Property Edad As %Integer [ Calculated, SqlComputeCode = { set {*} = (+$horolog - {FechaNacimiento})\365 }, SqlComputed ];
 
-Property DatosTemporales [ MultiDimensional ];
+Property DatosTemporales As %String [ MultiDimensional ];
 
 Property Superior As Modelo.Empleado;
 
@@ -23,7 +25,51 @@ Property Cargo As %String(VALUELIST = ",EMP,MGR");
 
 Property InfoContacto As array Of %String;
 
-Property FechaRegistro As %DateTime [ InitialExpression = {$h} ];
+Property FechaRegistro As %DateTime [ InitialExpression = {$zdatetime($h,3)} ];
+
+ClassMethod Test() As Modelo.Empleado
+{
+    #dim objRef as Modelo.Empleado
+    #dim objMgr as Modelo.Empleado = ##class(Modelo.Empleado).%OpenId(1)
+
+    set objRef = ..%New()
+    if $IsObject(objRef)
+    {
+        set objRef.Nombre = "Juan"
+        set objRef.Genero = "M"
+        set objRef.FechaNacimiento = +$horolog - (365*40)
+
+        //Direccion como objeto serial (embebido)
+        set objRef.Domicilio.Tipo = "CL"
+        set objRef.Domicilio.Descripcion = "Miguel Gila"
+        set objRef.Domicilio.Numero = 10
+        set objRef.Domicilio.Ciudad = "Albacete"
+        set objRef.Domicilio.CodPostal = "02230"
+
+        // Referencia a otros objetos persistentes
+        set objRef.Superior = objMgr
+
+        // Datos Temporales - sólo cuando el objeto esté en memoria
+        set objRef.DatosTemporales("NodoXXX") = "lo que quiera"
+        set objRef.DatosTemporales(1,"otronodo") = 201
+        set objRef.DatosTemporales(1,2,"meloinvento") = 10.34
+
+        
+        write !,"Contenido de la propiedad DatosTemporales",!
+        merge x = objRef.DatosTemporales 
+        zwrite x
+
+        set tSC = objRef.InfoContacto.SetAt("+34666000111","Movil")
+        set tSC = objRef.InfoContacto.SetAt("+34961234567","Oficina")
+        set tSC = objRef.InfoContacto.SetAt("pepe@mycompany.com","Email")
+
+        set tSC = objRef.%Save()
+
+        return objRef
+    }
+
+    return $$$NULLOREF
+}
 
 Storage Default
 {
@@ -54,6 +100,9 @@ Storage Default
 </Value>
 <Value name="9">
 <Value>FechaRegistro</Value>
+</Value>
+<Value name="10">
+<Value>Genero</Value>
 </Value>
 </Data>
 <Data name="InfoContacto">
