@@ -8,6 +8,7 @@ Property nombre As %String;
 /// Description
 ClassMethod holaMundo() As %Status
 {
+
         Return "Hola Mundo!!"
 }
 
