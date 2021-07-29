@@ -28,11 +28,14 @@ ClassMethod MacroInterna(x As %Integer = 0, y As %Integer = 1, numDig As %SmallI
 {
     #define DIVIDE(%x,%y) %x\%y
     #define JUSTIFICA(%num,%digitos) $translate($justify(%num,%digitos)," ",0)
+    #Define LEE(%x) READ !,"Nombre: ",nombre  WRITE !,"%x ",nombre,!
 
     set resul = $$$DIVIDE(x,y)
+    
     write !,"Resultado: "_resul
     write !,"Justificado a "_numDig_" dígitos: "_$$$JUSTIFICA(resul,numDig)
     write !
+    $$$LEE(Bienvenid@)
 
     return resul
 }
