@@ -43,52 +43,57 @@ ClassMethod MacroInterna(x As %Integer = 0, y As %Integer = 1, numDig As %SmallI
 /// Jugando con JSON nativo
 ClassMethod TestJSON() As %DynamicObject
 {
-    // Define un array con info sobre motores
+    // Define un array con info sobre el estado de motores -- propiedades: motor / activo 
     Set arrM = [{"motor":"A02","activo":true},{"motor":"B836","activo":false}]
 
-    // Define un array con un conjunto de señales
+    // Define un array con info sobre el valor de señales -- propiedades señal / valor
     set arrS = [{"señal":8007,"valor":23}, {"señal":1007,"valor":1.34}]
     
     // Número de señales en el array
     write !, "arrS contiene "_arrS.%Size()_" señales",!
 
-    // Objeto iterator sobre el array
+    // Objeto iterator sobre el array (itS)
     set itS = arrS.%GetIterator()
 
-    // Nos movemos al primer elemento del array JSON
+    // Nos movemos al primer elemento del array JSON   -- variables keyS / valueS
     do itS.%GetNext(.keyS,.valueS)
+
+    // Muestra info
     write !,"Primer elemento del array arrS: "_keyS," *** ",valueS," *** ",valueS.%ToJSON()
     write !
 
-    // Iterator sobre un objeto JSON
+    // Iterator sobre un objeto JSON (it)
     set it = valueS.%GetIterator()
 
-    // Recuperamos la primera propiedad, valor y descripción, del objeto JSON
+    // Recuperamos la primera propiedad, valor y descripción, del objeto JSON -- variables key / value
     do it.%GetNext(.key,.value)
+ 
+    // Muestra info
     write !,"Primera propiedad del objeto JSON: "_key," ** ",value,!
+    write !
 
-    //Introduce documentos/objetos JSON en un array
+    //Crea 2 objetos JSON: json y json2; de prueba y los introduce en un array: arrS
     Set json = {"señal":1,"valor":0.15}
     Set json2 = {"señal":123,"valor":921}
 
     Do arrS.%Push(json), arrS.%Push(json2)
     Do arrS.%ToJSON()
 
-    // Saca el último elemento del array (lo retorna y lo quita del array)
+    // Saca el último elemento del array: arrS; lo retorna (elem) y lo quita del array
     Set elem = arrS.%Pop()
     Do elem.%ToJSON()
     Do arrS.%ToJSON()
 
-    // Saca el elemento del array que esté en la posición indicaa
+    // Saca el elemento del array: arrS; que esté en la posición indicada. Lo retorna (elem) y lo quita del array
     Set elem = arrS.%Remove(2)
     Do elem.%ToJSON()
     Do arrS.%ToJSON()
 
-    //Introduce valores en JSON
+    //Introduce valores en un JSON. Creamos un bundle con los 2 arrays: arrM y arrS, en las propiedades motores y signals
     Set bundle = {}.%Set("motores",arrM)
     Set bundle.signals = arrS
 
-    //Retorna el documento JSON con toda la información
+    //Retorna el documento JSON: bundle; con toda la información
     return bundle
 }
 
