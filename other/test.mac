@@ -1,5 +1,0 @@
-ROUTINE test
-Start
-    set x  =##class(JTS.NewClass1).%New()
-    
-    quit

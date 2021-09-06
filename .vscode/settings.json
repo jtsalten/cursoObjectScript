@@ -2,6 +2,6 @@
     "objectscript.conn": {
         "server": "win-iris2021",
         "ns": "USER",
-        "active": true
+        "active": false
     }
 }
