@@ -1,12 +1,20 @@
 /// Clase Cliente
-Class Modelo.Cliente Extends (%Persistent, %Populate, %JSON.Adaptor, %XML.Adaptor)
+Class Modelo.Cliente Extends (%Persistent, %Populate, %JSON.Adaptor, %XML.Adaptor) [ ClassType = persistent, DdlAllowed ]
 {
 
 Property ClienteID As %Integer [ Identity ];
 
-Property Nombre As %String(MAXLEN = 50);
+Property Nombre As %String(MAXLEN = 50, POPSPEC = "Company()");
 
 Property Supervisor As Modelo.Empleado;
+
+Property FechaAlta As %Library.Date [ SqlColumnNumber = 2, SqlFieldName = Fecha_Alta ];
+
+/// Indice único sobre Nombre de empresa
+Index idxNombre On Nombre [ Unique ];
+
+/// Indice por fecha alta
+Index idxFecAlta On FechaAlta;
 
 Storage Default
 {
@@ -22,6 +30,9 @@ Storage Default
 </Value>
 <Value name="4">
 <Value>Supervisor</Value>
+</Value>
+<Value name="5">
+<Value>FechaAlta</Value>
 </Value>
 </Data>
 <DataLocation>^Modelo.ClienteD</DataLocation>

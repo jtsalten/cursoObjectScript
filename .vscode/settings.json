@@ -1,7 +1,12 @@
 {
     "objectscript.conn": {
-        "server": "win-iris2021",
+        "links": {
+            "Installer Wizard": "${serverUrl}/isc/studio/templates/%25Installer.InstallerWizard.cls?Namespace=${namespace}${serverAuth}",
+            "SOAP Wizard": "${serverUrl}/isc/studio/templates/%25ZEN.Template.AddInWizard.SOAPWizard.cls?Namespace=${namespace}${serverAuth}",
+            "DeepSeek PI Wizard": "${serverUrl}/isc/studio/templates/%25DeepSee.Template.DeepSeeKPIWizard.cls?Namespace=${namespace}${serverAuth}"
+        },
+        "server": "win-iris021",
         "ns": "USER",
-        "active": false
+        "active": true
     }
 }

@@ -1,5 +1,5 @@
 /// Empleado
-Class Modelo.Empleado Extends (%Persistent, %Populate, %JSON.Adaptor, %XML.Adaptor)
+Class Modelo.Empleado Extends (%Persistent, %Populate, %JSON.Adaptor, %XML.Adaptor) [ ClassType = persistent ]
 {
 
 /// Description

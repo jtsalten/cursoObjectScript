@@ -1,25 +1,31 @@
 /// Direccion
-Class Modelo.Direccion Extends %SerialObject
+Class Modelo.Direccion Extends (%SerialObject, %Populate)
 {
 
 /// Tipo
-Property Tipo As %String;
+Property Tipo As %String(VALUELIST = ",CL,AV,Ctra,Paseo");
 
 /// Descripcion
 Property Descripcion As %String;
 
 /// Numero
-Property Numero As %String;
+Property Numero As %Integer(MAXVAL = 300, MINVAL = 1);
 
 /// CodPostal
-Property CodPostal As %String;
+Property CodPostal As %String(POPORDER = 5, POPSPEC = ".popCP()");
 
 /// Ciudad
-Property Ciudad As %String;
+Property Ciudad As %String(POPSPEC = "City()");
 
 /// Provincia
-Property Provincia As %String;
+Property Provincia As %String(POPORDER = 1, VALUELIST = ",Albacete,Barcelona,Madrid");
 
+Method popCP() As %String
+{
+    return $case(i%Provincia,"Albacete":"02","Barcelona":"08","Madrud":"28",:"50")_$translate($justify($random(400),3)," ",0)
+}
+
+/// Provincia
 Storage Default
 {
 <Data name="DireccionState">
@@ -42,6 +48,8 @@ Storage Default
 <Value>Provincia</Value>
 </Value>
 </Data>
+<Description>
+<![CDATA[Provincia]]></Description>
 <State>DireccionState</State>
 <StreamLocation>^Modelo.DireccionS</StreamLocation>
 <Type>%Storage.Serial</Type>

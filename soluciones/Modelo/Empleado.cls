@@ -6,7 +6,7 @@ Class Modelo.Empleado Extends (%Persistent, %Populate, %JSON.Adaptor, %XML.Adapt
 
 Property EmpleadoID As %Integer(MINVAL = 0) [ Identity ];
 
-Property Nombre As %String(MAXLEN = 30);
+Property Nombre As %String(MAXLEN = 30, POPORDER = 1, POPSPEC = "Name()");
 
 /// Domicilio
 Property Domicilio As Modelo.Direccion;
@@ -23,9 +23,12 @@ Property Superior As Modelo.Empleado;
 
 Property Cargo As %String(VALUELIST = ",EMP,MGR");
 
-Property InfoContacto As array Of %String;
+Property InfoContacto As array Of %String(POPORDER = 9, POPSPEC = ".popContacto(""V""):3:.popContacto(""K"")");
 
 Property FechaRegistro As %DateTime [ InitialExpression = {$zdatetime($h,3)} ];
+
+/// Indice sobre Nombre
+Index idxNombre On Nombre;
 
 ClassMethod Test() As Modelo.Empleado
 {
@@ -69,6 +72,38 @@ ClassMethod Test() As Modelo.Empleado
     }
 
     return $$$NULLOREF
+}
+
+/// Generador de Info Contacto. Ha de ejecutarse siempre una vez tengamos un nombre
+/// Formato esperado para el nombre: Ape, Nom
+Method popContacto(pKorVal As %String) As %String
+{
+    set listaK = $LB("TfCasa","TfTrabajo","TfMovil","TfBusca","Email")
+    // Genera clave
+    if pKorVal = "K"
+    {
+        set %zValKey = $get(%zValKey,"Desconocido")
+        return %zValKey
+    }
+    // Genera valor
+    elseif pKorVal = "V"
+    {
+        // La utilidad Populate llamará primero a la lógica de generación de valor... aquí aprovechamos para 
+        // generar ya la clave, es decir, el tipo de Info de Contacto... la dejamos en la %zValKey para que 
+        // se mantenga disponible al proceso
+        set %zValKey=$listget(listaK,$r($ll(listaK))+1)
+        if $get(%zValKey) = "Email"
+        {
+            set ape = $piece(i%Nombre,",",1)
+            set nom = $piece(i%Nombre,",",2)
+
+            return $extract(nom,1)_"."_ape_$r(99)_"@mycompany.es"
+        }
+        else // numero teléfono
+        {
+            return "+34666"_$tr($j($r(999),3)," ",0)_$tr($j($r(999),3)," ",0)
+        }
+    }
 }
 
 Storage Default
